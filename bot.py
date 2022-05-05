@@ -4,7 +4,7 @@ import settings
 from handlers import *
 from add_expense import *
 
-logging.basicConfig(filename='countbot.log', level=logging.INFO)
+logging.basicConfig(filename='countbot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Настройки прокси
 PROXY = {'proxy_url': settings.PROXY_URL,
@@ -12,31 +12,38 @@ PROXY = {'proxy_url': settings.PROXY_URL,
             'username': settings.PROXY_USERNAME,
             'password': settings.PROXY_PASSWORD
         }
-    }
+}
 
 
 def main():
     # Создаем бота и передаем ему ключ для авторизации на серверах Telegram
     mybot = Updater(settings.API_KEY, use_context=True)
-    # mybot = Updater("КЛЮЧ БОТА", use_context=True, request_kwargs=PROXY)
-    
+    # c прокси mybot = Updater("КЛЮЧ БОТА", use_context=True, request_kwargs=PROXY)
+
     add_expense = ConversationHandler(
         entry_points=[MessageHandler(Filters.regex('^(Ввести расход)$'), add_expense_start)],
-        states={"expense_type": [MessageHandler(Filters.text, input_expense_type)],
-                "amount": [MessageHandler(Filters.text, input_amount)],
+        states={"expense_type": [CommandHandler('start', greet_user),
+                                MessageHandler(
+                                    Filters.regex('^(Ввести расход)$'), add_expense_start),
+                                MessageHandler(
+                                    Filters.text, input_expense_type)],
+
+                "amount": [CommandHandler('start', greet_user),
+                          MessageHandler(Filters.text, input_amount)],
         },
-        fallbacks=[MessageHandler(Filters.video | Filters.photo | Filters.document
-          | Filters.location, catch_invalid_input)]
-        )
+        fallbacks=[MessageHandler(~ Filters.text, catch_invalid_input)]
+    )
 
     dp = mybot.dispatcher
-    dp.add_handler(CommandHandler("start", greet_user))
     dp.add_handler(CommandHandler("lasts", show_last_5))
     dp.add_handler(MessageHandler(Filters.regex('^(История записей)$'), show_last_5))
+    # dp.add_handler(MessageHandler(Filters.regex('^(В начало)$'), talk_to_me))
     dp.add_handler(add_expense)
-    dp.add_handler(MessageHandler(Filters.regex('^(В начало)$'), talk_to_me))
+    # dp.add_handler(CommandHandler("start", greet_user2, Filters.chat(settings.ALLOWED_CHAT_IDS)))
+    dp.add_handler(CommandHandler("start", greet_user))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
-    
+    dp.add_handler(MessageHandler(~ Filters.text, catch_invalid_input_in_general))
+
     # логирование
     logging.info("Бот стартовал")
     
