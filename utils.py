@@ -24,7 +24,7 @@ def get_last_5_records(sheet):
     raw_values = sheet.get_values(start=settings.START_CELL, end=settings.END_CELL)[-5:]
     values = []
     for i in raw_values:
-        values.append([str(i[0]), int(i[1])])
+        values.append([str(i[0]), i[1]])
     return values
 
 

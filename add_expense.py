@@ -19,7 +19,6 @@ def input_expense_type(update, context):
     expense_name = update.message.text
     if len(expense_name) > 2:
         logging.info("вызван ввести расход. Функция add_expense_start")
-
         context.user_data["expense_type"] = expense_name
         update.message.reply_text(f"сколько потрачено на {expense_name}?")
         return "amount"

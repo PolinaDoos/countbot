@@ -35,7 +35,6 @@ PROXY = {
 def main():
     # Создаем бота и передаем ему ключ для авторизации на серверах Telegram
     mybot = Updater(settings.API_KEY, use_context=True)
-    # c прокси mybot = Updater("КЛЮЧ БОТА", use_context=True, request_kwargs=PROXY)
 
     add_expense = ConversationHandler(
         entry_points=[MessageHandler(Filters.regex("^(Ввести расход)$"), add_expense_start)],
@@ -53,19 +52,17 @@ def main():
         },
         fallbacks=[
             MessageHandler(~Filters.text, catch_invalid_input),
-            # MessageHandler(
-            #     Filters.regex("^(Ввести расход)$") |
-            #     Filters.regex("^(История записей)$"), end_conversation
-            # ),
+            MessageHandler(
+                Filters.regex("^(отбой)$"),
+                end_conversation,
+            ),
         ],
     )
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("lasts", show_last_5))
     dp.add_handler(MessageHandler(Filters.regex("^(История записей)$"), show_last_5))
-    # dp.add_handler(MessageHandler(Filters.regex('^(В начало)$'), talk_to_me))
     dp.add_handler(add_expense)
-    # dp.add_handler(CommandHandler("start", greet_user2, Filters.chat(settings.ALLOWED_CHAT_IDS)))
     dp.add_handler(CommandHandler("start", greet_user))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
     dp.add_handler(MessageHandler(~Filters.text, catch_invalid_input_in_general))

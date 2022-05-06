@@ -16,6 +16,7 @@ def greet_user(update, context):
 
 def talk_to_me(update, context):
     update.message.reply_text("Что хочешь сделать?", reply_markup=main_keyboard())
+    return ConversationHandler.END
 
 
 @is_allow_user
@@ -29,7 +30,7 @@ def show_last_5(update, context):
     for i in values:
         msg = msg + f"{i[0]}, {i[1]}\n"
     context.bot.send_message(chat_id=chat_id, text=msg, reply_markup=main_keyboard())
-    return add_expense_start.END
+    return ConversationHandler.END
 
 
 def catch_invalid_input_in_general(update, context):
@@ -43,9 +44,6 @@ def catch_invalid_input_in_general(update, context):
 
 def end_conversation(update, context):
     user_data = context.user_data
-    update.message.reply_text(
-        f"Очищаем",
-        reply_markup=main_keyboard,
-    )
+    update.message.reply_text("Очищаем", reply_markup=main_keyboard())
     user_data.clear()
     return ConversationHandler.END
