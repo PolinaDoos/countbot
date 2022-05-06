@@ -7,3 +7,4 @@ env/
 __pycache__/
 *.json
 .pytest_cache/
+tips.py

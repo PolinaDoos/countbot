@@ -12,8 +12,16 @@ from add_expense import (
     input_amount,
     input_expense_type,
 )
-from handlers import catch_invalid_input_in_general, greet_user, show_last_5, talk_to_me, end_conversation
+from constants import COMMANDS_DICT
+from handlers import (
+    catch_invalid_input_in_general,
+    greet_user,
+    show_last_5,
+    talk_to_me,
+    end_conversation,
+)
 import settings
+from utils import collect_values_list_from_dict
 
 
 logging.basicConfig(
@@ -35,38 +43,40 @@ PROXY = {
 def main():
     # Создаем бота и передаем ему ключ для авторизации на серверах Telegram
     mybot = Updater(settings.API_KEY, use_context=True)
-    # c прокси mybot = Updater("КЛЮЧ БОТА", use_context=True, request_kwargs=PROXY)
+
+    # собирает список текстовых команд
+    text_commands_list = collect_values_list_from_dict(COMMANDS_DICT)
 
     add_expense = ConversationHandler(
-        entry_points=[MessageHandler(Filters.regex("^(Ввести расход)$"), add_expense_start)],
+        entry_points=[MessageHandler(Filters.text(COMMANDS_DICT["Ввести расход"]), add_expense_start)],
         states={
             "expense_type": [
-                CommandHandler("start", greet_user),
-                MessageHandler(Filters.regex("^(Ввести расход)$"), add_expense_start),
-                MessageHandler(Filters.regex("^(История записей)$"), show_last_5),
-                MessageHandler(Filters.text, input_expense_type),
+                MessageHandler(Filters.text & 
+                ~Filters.command & 
+                ~Filters.text(text_commands_list), 
+                input_expense_type
+                ),
             ],
             "amount": [
-                CommandHandler("start", greet_user),
-                MessageHandler(Filters.text, input_amount),
+                MessageHandler(Filters.text & 
+                ~Filters.command & 
+                ~Filters.text(text_commands_list), 
+                input_amount
+                ),
             ],
         },
         fallbacks=[
+            CommandHandler("start", greet_user),
+            MessageHandler(Filters.text(COMMANDS_DICT["Ввести расход"]), add_expense_start),
+            MessageHandler(Filters.text(COMMANDS_DICT["История записей"]), show_last_5),
             MessageHandler(~Filters.text, catch_invalid_input),
-            # MessageHandler(
-            #     Filters.regex("^(Ввести расход)$") |
-            #     Filters.regex("^(История записей)$"), end_conversation
-            # ),
         ],
     )
 
     dp = mybot.dispatcher
-    dp.add_handler(CommandHandler("lasts", show_last_5))
-    dp.add_handler(MessageHandler(Filters.regex("^(История записей)$"), show_last_5))
-    # dp.add_handler(MessageHandler(Filters.regex('^(В начало)$'), talk_to_me))
     dp.add_handler(add_expense)
-    # dp.add_handler(CommandHandler("start", greet_user2, Filters.chat(settings.ALLOWED_CHAT_IDS)))
     dp.add_handler(CommandHandler("start", greet_user))
+    dp.add_handler(MessageHandler(Filters.text(COMMANDS_DICT["История записей"]), show_last_5))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
     dp.add_handler(MessageHandler(~Filters.text, catch_invalid_input_in_general))
 
