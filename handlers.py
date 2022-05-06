@@ -8,7 +8,6 @@ from utils import get_from_googlesheet, get_last_5_records, is_allow_user, main_
 
 def greet_user(update, context):
     username = update.effective_user.first_name
-    # print(update.effective_chat.id)
     logging.info(f"Username {username} вызвал комагду /start")
     update.message.reply_text(f"Привет, {username}! Ты вызвал команду /start", reply_markup=main_keyboard())
     return ConversationHandler.END

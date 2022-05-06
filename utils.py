@@ -44,3 +44,12 @@ def is_allow_user(func):
         return ConversationHandler.END
 
     return wrapped
+
+
+# собирает список значений словаря, включая 1 уровень вложенности
+def collect_values_list_from_dict(commands_dict):
+    text_commands_list = []
+    for i in [value for k, value in commands_dict.items()]:
+        for j in i:
+            text_commands_list.append(j)
+    return text_commands_list
