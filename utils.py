@@ -14,6 +14,14 @@ def main_keyboard():
     )
 
 
+def main_keyboard_no_one_time():
+    return ReplyKeyboardMarkup(
+        [[COMMANDS_DICT["История записей"][0], COMMANDS_DICT["Ввести расход"][0]], [COMMANDS_DICT["start"][0]]],
+        resize_keyboard=True,
+        one_time_keyboard=False,
+    )
+
+
 def add_expense_start_keyboard():
     return ReplyKeyboardMarkup(
         [[COMMANDS_DICT["start"][0]]],
