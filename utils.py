@@ -1,19 +1,33 @@
 import logging
-from telegram import ReplyKeyboardMarkup
+from telegram import KeyboardButton, ReplyKeyboardMarkup
+from constants import COMMANDS_DICT
 import settings
 import pygsheets
 from telegram.ext import ConversationHandler
 
 
 def main_keyboard():
-    return ReplyKeyboardMarkup([["История записей"], ["Ввести расход"]], resize_keyboard=True)
+    return ReplyKeyboardMarkup(
+        [[COMMANDS_DICT["История записей"][0], COMMANDS_DICT["Ввести расход"][0]], [COMMANDS_DICT["start"][0]]],
+        resize_keyboard=True,
+        one_time_keyboard=True,
+    )
+
+
+def add_expense_start_keyboard():
+    return ReplyKeyboardMarkup(
+        [[COMMANDS_DICT["start"][0]]],
+        resize_keyboard=True,
+        one_time_keyboard=True,
+        input_field_placeholder="Введи расход",
+    )
 
 
 def cancel_keyboard():
-    return ReplyKeyboardMarkup([["В начало"]], resize_keyboard=True)
+    return ReplyKeyboardMarkup([COMMANDS_DICT["start"][0]], resize_keyboard=True)
 
 
-def get_from_googlesheet():
+def get_googlesheet():
     gc = pygsheets.authorize(service_file=settings.GDRIVE_API_CREDENTIALS)
     book = gc.open_by_key(settings.GOOGLE_SHEETS)
     sheet = book.worksheet("title", settings.SELECTED_GSHEET)
@@ -28,8 +42,14 @@ def get_last_5_records(sheet):
     return values
 
 
+def get_total_amount(sheet):
+    total_period = sheet.get_value(settings.TOTAL_PERIOD)
+    total_amount = sheet.get_value(settings.TOTAL_AMOUNT)
+    return [total_period, total_amount]
+
+
 def add_to_googlesheet(values):
-    sheet = get_from_googlesheet()
+    sheet = get_googlesheet()
     sheet.append_table(values)
 
 
