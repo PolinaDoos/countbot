@@ -1,9 +1,9 @@
 import logging
+from telegram import ParseMode
 
 from telegram.ext import ConversationHandler
-from add_expense import add_expense_start
 
-from utils import get_from_googlesheet, get_last_5_records, is_allow_user, main_keyboard
+from utils import get_googlesheet, get_last_5_records, get_total_amount, is_allow_user, main_keyboard
 
 
 def greet_user(update, context):
@@ -23,12 +23,20 @@ def show_last_5(update, context):
     chat_id = update.effective_chat.id
     logging.info(f"chat_id {chat_id}, Username {update.effective_user.first_name} запросил историю записей")
     update.message.reply_text("Вот последние 5 записей:")
-    sheet = get_from_googlesheet()
+    sheet = get_googlesheet()
+    total = get_total_amount(sheet)
     values = get_last_5_records(sheet)
     msg = ""
     for i in values:
         msg = msg + f"{i[0]}, {i[1]}\n"
-    context.bot.send_message(chat_id=chat_id, text=msg, reply_markup=main_keyboard())
+    msg += f"<i>{total[0].capitalize()}: {total[1]}</i>\n"
+
+    context.bot.send_message(
+        chat_id=chat_id,
+        text=msg,
+        parse_mode=ParseMode.HTML,
+        reply_markup=main_keyboard()
+    )
     return ConversationHandler.END
 
 
@@ -38,11 +46,4 @@ def catch_invalid_input_in_general(update, context):
         reply_markup=main_keyboard(),
     )
     update.message.reply_text("Я не пойму, но ты повеселишься", reply_markup=main_keyboard())
-    return ConversationHandler.END
-
-
-def end_conversation(update, context):
-    user_data = context.user_data
-    update.message.reply_text("Очищаем", reply_markup=main_keyboard())
-    user_data.clear()
     return ConversationHandler.END

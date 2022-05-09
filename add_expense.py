@@ -2,14 +2,19 @@ import logging
 from telegram import ReplyKeyboardRemove
 from telegram.ext import ConversationHandler
 
-from utils import add_to_googlesheet, cancel_keyboard, is_allow_user, main_keyboard
+from utils import (
+    add_expense_start_keyboard,
+    add_to_googlesheet,
+    is_allow_user,
+    main_keyboard,
+)
 
 
 @is_allow_user
 def add_expense_start(update, context):
-    logging.info(f"вызван ввести расход. Функция add_expense_start")
     update.message.reply_text(
-        f"Напиши, на что потрачено.\nЧтобы вернуться назад, нажми /start", reply_markup=ReplyKeyboardRemove()
+        f"Напиши, на что потрачено.\nЧтобы вернуться в начало, нажми /start",
+        reply_markup=add_expense_start_keyboard()
     )
     return "expense_type"
 
@@ -18,13 +23,13 @@ def add_expense_start(update, context):
 def input_expense_type(update, context):
     expense_name = update.message.text
     if len(expense_name) > 2:
-        logging.info("вызван ввести расход. Функция add_expense_start")
-        context.user_data["expense_type"] = expense_name
-        update.message.reply_text(f"сколько потрачено на {expense_name}?")
+        context.user_data["expense_type"] = expense_name.lower()
+        update.message.reply_text(
+            f"сколько потрачено на {expense_name}?",
+        )
         return "amount"
     update.message.reply_text(
         f"{expense_name} - очень короткое название. Введи еще раз",
-        # reply_markup=cancel_keyboard()
     )
     return "expense_type"
 

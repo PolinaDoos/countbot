@@ -18,7 +18,6 @@ from handlers import (
     greet_user,
     show_last_5,
     talk_to_me,
-    end_conversation,
 )
 import settings
 from utils import collect_values_list_from_dict
@@ -66,7 +65,8 @@ def main():
             ],
         },
         fallbacks=[
-            CommandHandler("start", greet_user),
+            # CommandHandler("start", greet_user),
+            MessageHandler(Filters.text(COMMANDS_DICT["start"]), greet_user),
             MessageHandler(Filters.text(COMMANDS_DICT["Ввести расход"]), add_expense_start),
             MessageHandler(Filters.text(COMMANDS_DICT["История записей"]), show_last_5),
             MessageHandler(~Filters.text, catch_invalid_input),
