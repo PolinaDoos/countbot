@@ -1,3 +1,4 @@
+import json
 import logging
 from telegram.ext import (
     Updater,
@@ -19,9 +20,11 @@ from handlers import (
     show_last_5,
     talk_to_me,
 )
-import settings
-from utils import collect_values_list_from_dict
 
+import os
+from dotenv import load_dotenv
+
+from utils import collect_values_list_from_dict
 
 logging.basicConfig(
     filename="countbot.log",
@@ -31,17 +34,20 @@ logging.basicConfig(
 
 # Настройки прокси
 PROXY = {
-    "proxy_url": settings.PROXY_URL,
+    "proxy_url": os.getenv("PROXY_URL"),
     "urllib3_proxy_kwargs": {
-        "username": settings.PROXY_USERNAME,
-        "password": settings.PROXY_PASSWORD,
+        "username": os.getenv("PROXY_USERNAME"),
+        "password": os.getenv("PROXY_PASSWORD"),
     },
 }
 
 
 def main():
+    # Получаем переменные среды из файла .env в корне проекта
+    load_dotenv(".env")
+
     # Создаем бота и передаем ему ключ для авторизации на серверах Telegram
-    mybot = Updater(settings.API_KEY, use_context=True)
+    mybot = Updater(os.getenv("API_KEY"), use_context=True)
 
     # собирает список текстовых команд
     text_commands_list = collect_values_list_from_dict(COMMANDS_DICT)
@@ -50,18 +56,10 @@ def main():
         entry_points=[MessageHandler(Filters.text(COMMANDS_DICT["Ввести расход"]), add_expense_start)],
         states={
             "expense_type": [
-                MessageHandler(Filters.text & 
-                ~Filters.command & 
-                ~Filters.text(text_commands_list), 
-                input_expense_type
-                ),
+                MessageHandler(Filters.text & ~Filters.command & ~Filters.text(text_commands_list), input_expense_type),
             ],
             "amount": [
-                MessageHandler(Filters.text & 
-                ~Filters.command & 
-                ~Filters.text(text_commands_list), 
-                input_amount
-                ),
+                MessageHandler(Filters.text & ~Filters.command & ~Filters.text(text_commands_list), input_amount),
             ],
         },
         fallbacks=[
