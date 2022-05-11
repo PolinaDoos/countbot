@@ -1,7 +1,8 @@
+import json
 import logging
+import os
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 from constants import COMMANDS_DICT
-import settings
 import pygsheets
 from telegram.ext import ConversationHandler
 
@@ -36,14 +37,16 @@ def cancel_keyboard():
 
 
 def get_googlesheet():
-    gc = pygsheets.authorize(service_file=settings.GDRIVE_API_CREDENTIALS)
-    book = gc.open_by_key(settings.GOOGLE_SHEETS)
-    sheet = book.worksheet("title", settings.SELECTED_GSHEET)
+    # gc = pygsheets.authorize(service_file=settings.GDRIVE_API_CREDENTIALS) для загрузки из файла
+    gc = pygsheets.authorize(service_account_env_var="GDRIVE_API_CREDENTIALS")
+
+    book = gc.open_by_key(os.getenv("GOOGLE_SHEETS"))
+    sheet = book.worksheet("title", os.getenv("SELECTED_GSHEET"))
     return sheet
 
 
 def get_last_5_records(sheet):
-    raw_values = sheet.get_values(start=settings.START_CELL, end=settings.END_CELL)[-5:]
+    raw_values = sheet.get_values(start=os.getenv("START_CELL"), end=os.getenv("END_CELL"))[-5:]
     values = []
     for i in raw_values:
         values.append([str(i[0]), i[1]])
@@ -51,8 +54,8 @@ def get_last_5_records(sheet):
 
 
 def get_total_amount(sheet):
-    total_period = sheet.get_value(settings.TOTAL_PERIOD)
-    total_amount = sheet.get_value(settings.TOTAL_AMOUNT)
+    total_period = sheet.get_value(os.getenv("TOTAL_PERIOD"))
+    total_amount = sheet.get_value(os.getenv("TOTAL_AMOUNT"))
     return [total_period, total_amount]
 
 
@@ -65,7 +68,8 @@ def add_to_googlesheet(values):
 def is_allow_user(func):
     def wrapped(*args, **kwargs):
         chat_id = args[0].effective_chat.id
-        if chat_id in settings.ALLOWED_CHAT_IDS:
+        # json.loads для чтения переменной в виде списка
+        if chat_id in json.loads(os.getenv("ALLOWED_CHAT_IDS")):
             return func(*args, **kwargs)
         args[0].message.reply_text(text="Это приватная информация, чел! Обратитесь к @BarsukovaP")
         logging.info(f"chat_id {chat_id}, Username {args[0].effective_user.first_name} полез без спроса")
