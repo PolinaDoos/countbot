@@ -1,4 +1,3 @@
-import json
 import logging
 from telegram.ext import (
     Updater,
@@ -30,7 +29,9 @@ logging.basicConfig(
     filename="countbot.log",
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%d.%m.%Y %H:%M:%S%z",
 )
+
 
 # Настройки прокси
 PROXY = {

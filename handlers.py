@@ -15,7 +15,7 @@ from utils import (
 
 def greet_user(update, context):
     username = update.effective_user.first_name
-    logging.info(f"Username {username} вызвал комагду /start")
+    logging.info(f"Username {username} вызвал команду /start")
     update.message.reply_text(f"Привет, {username}! Ты вызвал команду /start", reply_markup=main_keyboard_no_one_time())
     return ConversationHandler.END
 
