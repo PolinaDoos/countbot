@@ -1,8 +1,10 @@
 version: '2'
 services:
   bot:
+    # image: polinadoos/countbot:from_dc
     build:
       dockerfile: Dockerfile
       context: .
+    image: polinadoos/countbot:from_dc
     env_file:
       - .env
