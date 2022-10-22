@@ -41,7 +41,7 @@ def get_googlesheet():
     gc = pygsheets.authorize(service_account_env_var="GDRIVE_API_CREDENTIALS")
 
     book = gc.open_by_key(os.getenv("GOOGLE_SHEETS"))
-    sheet = book.worksheet("title", os.getenv("SELECTED_GSHEET"))
+    sheet = book.worksheet("id", os.getenv("SELECTED_GSHEET"))
     return sheet
 
 
