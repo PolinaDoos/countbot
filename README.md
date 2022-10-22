@@ -14,9 +14,9 @@ PS_countbot - это бот для Telegram, который выводит ин�
     PROXY_URL="str"
     PROXY_USERNAME="str"
     PROXY_PASSWORD="str"
-    API_KEY='str'
+    API_KEY="str"
     GDRIVE_API_CREDENTIALS='{full .json content}'
-    GOOGLE_SHEETS="str"
+    GOOGLE_SHEETS="str" - sheet id
     SELECTED_GSHEET="sheet name"
     START_CELL="A1 or other"
     END_CELL="B100 or other"
@@ -26,3 +26,4 @@ PS_countbot - это бот для Telegram, который выводит ин�
     ```
     Значения переменных можно запросить у автора проекта.
 3. Запустите `docker-compose up --build -d`
+    Или активируйте среду и запустите `python .\bot.py`
